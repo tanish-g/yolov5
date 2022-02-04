@@ -669,6 +669,11 @@ def load_image(self, i):
         else:  # read image
             path = self.img_files[i]
             im = cv2.imread(path)  # BGR
+            clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(18,32))
+            img1 = clahe.apply(img[:,:,0])
+            img2 = clahe.apply(img[:,:,1])
+            img3 = clahe.apply(img[:,:,2])
+            img = np.stack([img1,img2,img3],axis=2)
             assert im is not None, f'Image Not Found {path}'
         h0, w0 = im.shape[:2]  # orig hw
         r = self.img_size / max(h0, w0)  # ratio
