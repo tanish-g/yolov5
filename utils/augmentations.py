@@ -21,15 +21,30 @@ class Albumentations:
             import albumentations as A
             check_version(A.__version__, '1.0.3', hard=True)  # version requirement
 
-            self.transform = A.Compose([
-                A.Blur(p=0.01),
-                A.MedianBlur(p=0.01),
-                A.ToGray(p=0.01),
-                A.CLAHE(p=0.01),
-                A.RandomBrightnessContrast(p=0.0),
-                A.RandomGamma(p=0.0),
-                A.ImageCompression(quality_lower=75, p=0.0)],
-                bbox_params=A.BboxParams(format='yolo', label_fields=['class_labels']))
+#             self.transform = A.Compose([
+#                 A.Blur(p=0.01),
+#                 A.MedianBlur(p=0.01),
+#                 A.ToGray(p=0.01),
+#                 A.CLAHE(p=0.01),
+#                 A.RandomBrightnessContrast(p=0.0),
+#                 A.RandomGamma(p=0.0),
+#                 A.ImageCompression(quality_lower=75, p=0.0)],
+#                 bbox_params=A.BboxParams(format='yolo', label_fields=['class_labels']))
+            self.transform = A.Compose([A.RandomBrightnessContrast(brightness_limit=(0.05,0.1),contrast_limit=(0.05,0.1),p=0.3),
+#                                         A.CoarseDropout(max_holes = 15,max_height =10,max_width=10,min_holes=4,p=0.35),
+                                        A.RandomResizedCrop(3008,3008,scale = (0.4,1),p=0.5),
+                                        A.RGBShift(r_shift_limit=(0,0),g_shift_limit=(0,0),b_shift_limit=(10,30),p=0.35),
+                                        A.OneOf([
+                                          A.IAAAdditiveGaussianNoise(),
+                                          A.GaussNoise(),
+                                        ], p=0.2),
+                                        A.OneOf([
+                                          A.MotionBlur(p=0.2),
+                                          A.MedianBlur(blur_limit=3, p=0.1),
+                                          A.Blur(blur_limit=3, p=0.1),
+                                        ], p=0.2),
+                                        ],
+                                        bbox_params=A.BboxParams(format='yolo', label_fields=['class_labels']),p=1.0)
 
             LOGGER.info(colorstr('albumentations: ') + ', '.join(f'{x}' for x in self.transform.transforms if x.p))
         except ImportError:  # package not installed, skip
